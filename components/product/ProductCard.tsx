@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Product } from '../../types/index';
 import Button from '../ui/Button';
-import { cards, badges, text, combineClasses } from '../../lib/tailwindClasses';
+import { badges, text, combineClasses } from '../../lib/tailwindClasses';
 
 interface ProductCardProps {
   product: Product;

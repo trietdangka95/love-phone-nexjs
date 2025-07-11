@@ -3,11 +3,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../lib/store';
+import { CartItem } from '../../types';
 
 const Header: React.FC = () => {
   const router = useRouter();
   const cartState = useSelector((state: RootState) => state.cart);
-  const cartItemCount = cartState?.items?.reduce((total: number, item: any) => total + (item.quantity || 0), 0) || 0;
+  const cartItemCount = cartState?.items?.reduce(
+    (total: number, item: CartItem) => total + (item.quantity || 0),
+    0
+  ) || 0;
 
   const isActive = (path: string) => {
     if (path === '/') {

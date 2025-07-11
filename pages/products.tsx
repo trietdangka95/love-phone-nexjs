@@ -3,7 +3,6 @@ import { Product } from '../types/index';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../lib/slices/cartSlice';
 import ProductCard from '../components/product/ProductCard';
-import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 
 const mockProducts: Product[] = [
@@ -129,7 +128,7 @@ const ProductsPage: React.FC = () => {
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    let filtered = products.filter(product => {
+    const filtered = products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = !selectedCategory || product.category === selectedCategory;
@@ -171,13 +170,6 @@ const ProductsPage: React.FC = () => {
     setSelectedBrand('');
     setShowInStockOnly(false);
     setSortOption('name');
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(price);
   };
 
   if (loading) {

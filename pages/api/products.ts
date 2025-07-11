@@ -12,6 +12,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         description: 'iPhone 15 Pro Max với chip A17 Pro mạnh mẽ, camera 48MP',
         image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=300&fit=crop',
         category: 'smartphone',
+        brand: 'Apple',
         inStock: true,
       },
       {
@@ -21,6 +22,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         description: 'Samsung Galaxy S24 Ultra với S Pen tích hợp',
         image: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=300&fit=crop',
         category: 'smartphone',
+        brand: 'Samsung',
         inStock: true,
       },
       {
@@ -30,6 +32,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         description: 'MacBook Pro với chip M3, hiệu năng vượt trội',
         image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop',
         category: 'laptop',
+        brand: 'Apple',
         inStock: true,
       },
       {
@@ -39,6 +42,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         description: 'iPad Pro 12.9 inch với chip M2',
         image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop',
         category: 'tablet',
+        brand: 'Apple',
         inStock: false,
       },
       {
@@ -48,6 +52,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         description: 'AirPods Pro 2 với Active Noise Cancellation',
         image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400&h=300&fit=crop',
         category: 'accessories',
+        brand: 'Apple',
         inStock: true,
       },
       {
@@ -57,6 +62,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         description: 'Apple Watch Series 9 với tính năng sức khỏe nâng cao',
         image: 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=400&h=300&fit=crop',
         category: 'accessories',
+        brand: 'Apple',
         inStock: true,
       },
       {
@@ -66,6 +72,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         description: 'Dell XPS 13 với thiết kế InfinityEdge',
         image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&h=300&fit=crop',
         category: 'laptop',
+        brand: 'Dell',
         inStock: true,
       },
       {
@@ -75,6 +82,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         description: 'Samsung Galaxy Tab S9 với màn hình AMOLED',
         image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop',
         category: 'tablet',
+        brand: 'Samsung',
         inStock: true,
       },
     ];

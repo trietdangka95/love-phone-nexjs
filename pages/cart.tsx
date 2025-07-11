@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { RootState } from '../lib/store';
 import { removeFromCart, updateQuantity } from '../lib/slices/cartSlice';
 import Button from '../components/ui/Button';
+import Image from 'next/image';
+import { CartItem } from '../types';
 
 const CartPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -68,13 +70,15 @@ const CartPage: React.FC = () => {
             <h1 className="text-3xl font-extrabold text-gray-900 mb-8">Giỏ hàng</h1>
 
             <div className="border-t border-gray-200 divide-y divide-gray-200">
-              {items.map((item) => (
+              {items.map((item: CartItem) => (
                 <div key={item.id} className="py-6 flex">
                   <div className="flex-shrink-0 w-24 h-24">
-                    <img
+                    <Image
                       src={item.image}
                       alt={item.name}
-                      className="w-full h-full object-cover rounded-md"
+                      width={80}
+                      height={80}
+                      className="w-20 h-20 object-cover rounded"
                     />
                   </div>
 
