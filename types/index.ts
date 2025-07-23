@@ -6,30 +6,34 @@ export interface User {
 }
 
 // Product types
+export interface SizeStock {
+  size: string;
+  inStock: number;
+}
 export interface Product {
-  id: string;
+  _id: string;
   name: string;
   price: number;
   description: string;
   image: string;
-  category: string;
-  brand: string;
-  inStock: boolean;
-  discount?: number; // Thêm trường này
+  sizes?: SizeStock[];
+  brand?: string;
+  discount?: number;
 }
 
 // Cart types
 export interface CartItem {
-  id: string;
+  _id: string;
   name: string;
   price: number;
   image: string;
   quantity: number;
+  size?: string;
 }
 
 // Order types
 export interface OrderItem {
-  id: string;
+  _id: string;
   name: string;
   price: number;
   quantity: number;
@@ -39,7 +43,7 @@ export interface Order {
   id: string;
   items: OrderItem[];
   total: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   createdAt: string;
   shippingAddress: {
     name: string;
@@ -65,4 +69,4 @@ export interface ShippingAddress {
   name: string;
   address: string;
   phone: string;
-} 
+}

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
-import { Product } from '../types/index';
-import { addToCart } from '../lib/slices/cartSlice';
-import ProductCard from '../components/product/ProductCard';
+import React, { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
+import { Product } from "../types/index";
+import { addToCart } from "../lib/slices/cartSlice";
+import ProductCard from "../components/product/ProductCard";
 
 const HomePage: React.FC = () => {
   const dispatch = useDispatch();
@@ -16,34 +16,40 @@ const HomePage: React.FC = () => {
   const slides = [
     {
       id: 1,
-      title: "iPhone 15 Series",
-      subtitle: "Giảm giá lên đến 5 triệu đồng",
-      description: "Khám phá thế giới công nghệ với những sản phẩm chất lượng cao",
-      image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&h=600&fit=crop&crop=center",
-      discount: "50%",
+      title: "Váy Công Chúa Elsa",
+      subtitle: "Ưu đãi lên đến 30% cho bé gái",
+      description:
+        "Khám phá bộ sưu tập váy công chúa xinh xắn, chất liệu an toàn cho bé.",
+      image:
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=600&fit=crop&crop=center",
+      discount: "30%",
       buttonText: "Mua ngay",
-      bgGradient: "from-teal-600 via-teal-500 to-teal-700"
+      bgGradient: "from-pink-400 via-pink-300 to-pink-500",
     },
     {
       id: 2,
-      title: "Samsung Galaxy S24",
-      subtitle: "Tặng kèm phụ kiện trị giá 2 triệu",
-      description: "Trải nghiệm công nghệ mới nhất với Samsung Galaxy",
-      image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=800&h=600&fit=crop&crop=center",
-      discount: "30%",
+      title: "Áo Thun Bé Trai Siêu Nhân",
+      subtitle: "Giảm giá 20% cho áo thun hè",
+      description:
+        "Áo thun in hình siêu nhân, chất liệu cotton mềm mại, thoáng mát cho bé trai.",
+      image:
+        "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=800&h=600&fit=crop&crop=center",
+      discount: "20%",
       buttonText: "Khám phá",
-      bgGradient: "from-blue-600 via-blue-500 to-blue-700"
+      bgGradient: "from-blue-400 via-blue-300 to-blue-500",
     },
     {
       id: 3,
-      title: "MacBook Pro M3",
-      subtitle: "Giảm giá 3 triệu + tặng AirPods",
-      description: "Hiệu năng vượt trội với chip M3 mới nhất",
-      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&h=600&fit=crop&crop=center",
-      discount: "25%",
+      title: "Bộ Đồ Chơi Xếp Hình",
+      subtitle: "Tặng quà cho bé khi mua từ 2 bộ trở lên",
+      description:
+        "Đồ chơi xếp hình thông minh, phát triển tư duy sáng tạo cho bé.",
+      image:
+        "https://images.unsplash.com/photo-1503457574465-494bba506e52?w=800&h=600&fit=crop&crop=center",
+      discount: "Quà tặng",
       buttonText: "Xem chi tiết",
-      bgGradient: "from-purple-600 via-purple-500 to-purple-700"
-    }
+      bgGradient: "from-yellow-400 via-yellow-300 to-yellow-500",
+    },
   ];
 
   const startAutoPlay = () => {
@@ -65,7 +71,7 @@ const HomePage: React.FC = () => {
   const handleUserInteraction = () => {
     setIsAutoPlay(false);
     stopAutoPlay();
-    
+
     // Resume auto-play after 10 seconds of inactivity
     setTimeout(() => {
       setIsAutoPlay(true);
@@ -87,83 +93,71 @@ const HomePage: React.FC = () => {
     // Mock data - replace with API call
     const mockProducts: Product[] = [
       {
-        id: '1',
-        name: 'iPhone 15 Pro Max',
-        price: 35000000,
-        description: 'iPhone 15 Pro Max với chip A17 Pro mạnh mẽ, camera 48MP',
-        image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=300&fit=crop',
-        category: 'smartphone',
-        brand: 'Apple',
+        id: "1",
+        name: "Váy Công Chúa Elsa",
+        price: 350000,
+        description:
+          "Váy Elsa cho bé gái, chất liệu cotton thoáng mát, thiết kế xinh xắn.",
+        image:
+          "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=300&fit=crop",
+        category: "Váy bé gái",
+        brand: "Nhà Bơ",
         inStock: true,
       },
       {
-        id: '2',
-        name: 'Samsung Galaxy S24 Ultra',
-        price: 28000000,
-        description: 'Samsung Galaxy S24 Ultra với S Pen tích hợp',
-        image: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=300&fit=crop',
-        category: 'smartphone',
-        brand: 'Samsung',
+        id: "2",
+        name: "Áo Thun Bé Trai Siêu Nhân",
+        price: 180000,
+        description:
+          "Áo thun in hình siêu nhân cho bé trai, chất liệu mềm mại.",
+        image:
+          "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=400&h=300&fit=crop",
+        category: "Áo bé trai",
+        brand: "Nhà Bơ",
         inStock: true,
       },
       {
-        id: '3',
-        name: 'MacBook Pro M3',
-        price: 45000000,
-        description: 'MacBook Pro với chip M3, hiệu năng vượt trội',
-        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop',
-        category: 'laptop',
-        brand: 'Apple',
+        id: "3",
+        name: "Bộ Đồ Chơi Xếp Hình",
+        price: 250000,
+        description: "Bộ xếp hình thông minh giúp phát triển tư duy cho bé.",
+        image:
+          "https://images.unsplash.com/photo-1503457574465-494bba506e52?w=400&h=300&fit=crop",
+        category: "Đồ chơi",
+        brand: "Nhà Bơ",
         inStock: true,
       },
       {
-        id: '4',
-        name: 'iPad Pro 12.9',
-        price: 25000000,
-        description: 'iPad Pro 12.9 inch với chip M2',
-        image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop',
-        category: 'tablet',
-        brand: 'Apple',
+        id: "4",
+        name: "Set 3 Quần Legging Bé Gái",
+        price: 220000,
+        description: "Set 3 quần legging nhiều màu cho bé gái, co giãn tốt.",
+        image:
+          "https://images.unsplash.com/photo-1464983953574-0892a716854b?w=400&h=300&fit=crop",
+        category: "Quần bé gái",
+        brand: "Nhà Bơ",
         inStock: false,
       },
       {
-        id: '5',
-        name: 'AirPods Pro 2',
-        price: 6500000,
-        description: 'AirPods Pro 2 với Active Noise Cancellation',
-        image: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400&h=300&fit=crop',
-        category: 'accessories',
-        brand: 'Apple',
+        id: "5",
+        name: "Nón Tai Gấu Dễ Thương",
+        price: 90000,
+        description: "Nón len tai gấu cho bé, giữ ấm và cực kỳ dễ thương.",
+        image:
+          "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=300&fit=crop",
+        category: "Phụ kiện trẻ em",
+        brand: "Nhà Bơ",
         inStock: true,
       },
       {
-        id: '6',
-        name: 'Apple Watch Series 9',
-        price: 12000000,
-        description: 'Apple Watch Series 9 với tính năng sức khỏe nâng cao',
-        image: 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=400&h=300&fit=crop',
-        category: 'accessories',
-        brand: 'Apple',
-        inStock: true,
-      },
-      {
-        id: '7',
-        name: 'Dell XPS 13',
-        price: 32000000,
-        description: 'Dell XPS 13 với thiết kế InfinityEdge',
-        image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&h=300&fit=crop',
-        category: 'laptop',
-        brand: 'Dell',
-        inStock: true,
-      },
-      {
-        id: '8',
-        name: 'Samsung Galaxy Tab S9',
-        price: 18000000,
-        description: 'Samsung Galaxy Tab S9 với màn hình AMOLED',
-        image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop',
-        category: 'tablet',
-        brand: 'Samsung',
+        id: "6",
+        name: "Balo Hình Thú Cho Bé",
+        price: 150000,
+        description: "Balo nhỏ xinh hình thú cho bé đi học mẫu giáo.",
+        image:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop",
+        category: "Phụ kiện trẻ em",
+        brand: "Nhà Bơ",
         inStock: true,
       },
     ];
@@ -175,13 +169,15 @@ const HomePage: React.FC = () => {
   }, []);
 
   const handleAddToCart = (product: Product) => {
-    dispatch(addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity: 1,
-    }));
+    dispatch(
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: 1,
+      })
+    );
   };
 
   const goToSlide = (index: number) => {
@@ -215,10 +211,14 @@ const HomePage: React.FC = () => {
           <div
             key={slide.id}
             className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-              index === currentSlide ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+              index === currentSlide
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 translate-x-full"
             }`}
           >
-            <div className={`relative h-full bg-gradient-to-br ${slide.bgGradient} text-white overflow-hidden`}>
+            <div
+              className={`relative h-full bg-gradient-to-br ${slide.bgGradient} text-white overflow-hidden`}
+            >
               {/* Background decoration */}
               <div className="absolute inset-0 bg-black opacity-10"></div>
               <div className="absolute top-0 left-0 w-full h-full">
@@ -226,7 +226,7 @@ const HomePage: React.FC = () => {
                 <div className="absolute top-40 right-20 w-24 h-24 bg-white opacity-10 rounded-full"></div>
                 <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-white opacity-10 rounded-full"></div>
               </div>
-              
+
               <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
                   <div className="space-y-8">
@@ -244,7 +244,7 @@ const HomePage: React.FC = () => {
                         {slide.description}
                       </p>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
@@ -274,7 +274,7 @@ const HomePage: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col sm:flex-row gap-4">
                       <button className="bg-white text-gray-800 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
                         {slide.buttonText}
@@ -284,10 +284,10 @@ const HomePage: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="relative">
                     <div className="relative z-10">
-                      <img 
+                      <img
                         src={slide.image}
                         alt={slide.title}
                         className="rounded-2xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500"
@@ -295,7 +295,9 @@ const HomePage: React.FC = () => {
                     </div>
                     <div className="absolute -top-4 -right-4 bg-white rounded-2xl p-6 shadow-xl z-20">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-800">{slide.discount}</div>
+                        <div className="text-2xl font-bold text-gray-800">
+                          {slide.discount}
+                        </div>
                         <div className="text-sm text-gray-600">Giảm giá</div>
                       </div>
                     </div>
@@ -311,26 +313,52 @@ const HomePage: React.FC = () => {
           onClick={prevSlide}
           className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-300 z-30"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
         </button>
         <button
           onClick={nextSlide}
           className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-300 z-30"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </button>
 
         {/* Auto-play indicator */}
         <div className="absolute top-4 right-4 z-30">
-          <div className={`flex items-center space-x-2 px-3 py-2 bg-white bg-opacity-20 rounded-full text-white text-sm ${
-            isAutoPlay ? 'opacity-100' : 'opacity-50'
-          }`}>
-            <div className={`w-2 h-2 rounded-full ${isAutoPlay ? 'bg-white' : 'bg-white bg-opacity-50'}`}></div>
-            <span>{isAutoPlay ? 'Tự động' : 'Tạm dừng'}</span>
+          <div
+            className={`flex items-center space-x-2 px-3 py-2 bg-white bg-opacity-20 rounded-full text-white text-sm ${
+              isAutoPlay ? "opacity-100" : "opacity-50"
+            }`}
+          >
+            <div
+              className={`w-2 h-2 rounded-full ${
+                isAutoPlay ? "bg-white" : "bg-white bg-opacity-50"
+              }`}
+            ></div>
+            <span>{isAutoPlay ? "Tự động" : "Tạm dừng"}</span>
           </div>
         </div>
 
@@ -341,7 +369,9 @@ const HomePage: React.FC = () => {
               key={index}
               onClick={() => goToSlide(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentSlide ? 'bg-white scale-125' : 'bg-white bg-opacity-50'
+                index === currentSlide
+                  ? "bg-white scale-125"
+                  : "bg-white bg-opacity-50"
               }`}
             />
           ))}
@@ -355,23 +385,43 @@ const HomePage: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Danh mục sản phẩm
             </h2>
-            <p className="text-gray-600">
-              Chọn danh mục bạn quan tâm
-            </p>
+            <p className="text-gray-600">Chọn danh mục bạn quan tâm</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { name: 'Smartphone', icon: '📱', count: 50, color: 'bg-blue-500' },
-              { name: 'Laptop', icon: '💻', count: 30, color: 'bg-green-500' },
-              { name: 'Tablet', icon: '📱', count: 20, color: 'bg-purple-500' },
-              { name: 'Phụ kiện', icon: '🎧', count: 100, color: 'bg-orange-500' },
+              {
+                name: "Váy bé gái",
+                icon: "👗",
+                count: 50,
+                color: "bg-pink-400",
+              },
+              {
+                name: "Áo bé trai",
+                icon: "👕",
+                count: 30,
+                color: "bg-blue-400",
+              },
+              {
+                name: "Đồ chơi",
+                icon: "🧸",
+                count: 20,
+                color: "bg-yellow-400",
+              },
+              {
+                name: "Phụ kiện trẻ em",
+                icon: "🎀",
+                count: 100,
+                color: "bg-purple-400",
+              },
             ].map((category) => (
               <div
                 key={category.name}
                 className="bg-white rounded-lg p-6 text-center hover:shadow-lg transition-shadow cursor-pointer border border-gray-200"
               >
-                <div className={`w-16 h-16 ${category.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                <div
+                  className={`w-16 h-16 ${category.color} rounded-full flex items-center justify-center mx-auto mb-4`}
+                >
                   <span className="text-2xl">{category.icon}</span>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -393,7 +443,7 @@ const HomePage: React.FC = () => {
                 Sản phẩm nổi bật
               </h2>
               <p className="text-gray-600">
-                Những sản phẩm được yêu thích nhất
+                Những sản phẩm được yêu thích nhất tại Tiệm Nhỏ Nhà Bơ
               </p>
             </div>
             <button className="text-teal-600 hover:text-teal-700 font-medium">
@@ -421,21 +471,25 @@ const HomePage: React.FC = () => {
               Khuyến mãi đặc biệt
             </h2>
             <p className="text-gray-600">
-              Giảm giá lên đến 50% cho các sản phẩm hot
+              Ưu đãi lên đến 30% cho các sản phẩm thời trang trẻ em hot nhất
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg p-8 text-white">
-              <h3 className="text-2xl font-bold mb-4">iPhone 15 Series</h3>
-              <p className="text-teal-100 mb-4">Giảm giá lên đến 5 triệu đồng</p>
-              <button className="bg-white text-teal-600 px-6 py-2 rounded font-medium hover:bg-gray-100">
+            <div className="bg-gradient-to-r from-pink-400 to-pink-500 rounded-lg p-8 text-white">
+              <h3 className="text-2xl font-bold mb-4">Váy Công Chúa Elsa</h3>
+              <p className="text-pink-100 mb-4">
+                Ưu đãi lên đến 30% cho bé gái
+              </p>
+              <button className="bg-white text-pink-600 px-6 py-2 rounded font-medium hover:bg-gray-100">
                 Mua ngay
               </button>
             </div>
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-8 text-white">
-              <h3 className="text-2xl font-bold mb-4">Samsung Galaxy</h3>
-              <p className="text-blue-100 mb-4">Tặng kèm phụ kiện trị giá 2 triệu</p>
+            <div className="bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg p-8 text-white">
+              <h3 className="text-2xl font-bold mb-4">
+                Áo Thun Bé Trai Siêu Nhân
+              </h3>
+              <p className="text-blue-100 mb-4">Giảm giá 20% cho áo thun hè</p>
               <button className="bg-white text-blue-600 px-6 py-2 rounded font-medium hover:bg-gray-100">
                 Mua ngay
               </button>
@@ -447,4 +501,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage; 
+export default HomePage;
