@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Product } from '../types';
+import { useState, useEffect } from "react";
+import { Product } from "../types";
 
 export function useProducts(category?: string) {
   const [products, setProducts] = useState<Product[]>([]);
@@ -10,21 +10,21 @@ export function useProducts(category?: string) {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const url = category 
+        const url = category
           ? `/api/products?category=${category}`
-          : '/api/products';
-        
+          : "/api/products";
+
         const response = await fetch(url);
-        
+
         if (!response.ok) {
-          throw new Error('Failed to fetch products');
+          throw new Error("Failed to fetch products");
         }
-        
+
         const data = await response.json();
         setProducts(data);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
       }
@@ -34,4 +34,4 @@ export function useProducts(category?: string) {
   }, [category]);
 
   return { products, loading, error };
-} 
+}

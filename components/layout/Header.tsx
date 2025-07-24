@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../lib/store";
@@ -40,6 +41,13 @@ const Header: React.FC = () => {
           {/* Left side - Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.svg"
+                alt="Logo"
+                width={40}
+                height={40}
+                className="h-10 w-10"
+              />
               <h1 className="text-2xl font-bold text-primary-700">
                 Tiệm Nhỏ Nhà Bơ
               </h1>

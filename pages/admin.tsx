@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import { useToast } from "../components/ui/Toast";
 import { getImageUrl } from "../ultil";
 import PreviewImage from "../components/PreviewImage";
+import Image from "next/image";
 
 interface SizeStock {
   size: string; // '1', '2', '3'
@@ -51,7 +52,7 @@ const AdminPage: React.FC = () => {
   }, [router]);
 
   // Fetch products from API
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/products`);
@@ -66,11 +67,13 @@ const AdminPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE, showToast]);
 
   useEffect(() => {
-    if (isAdmin) fetchProducts();
-  }, [isAdmin]);
+    if (isAdmin) {
+      fetchProducts();
+    }
+  }, [isAdmin, fetchProducts]);
 
   if (!isClient) return null;
   if (!isAdmin) return null;
@@ -115,7 +118,7 @@ const AdminPage: React.FC = () => {
         body: JSON.stringify({
           ...form,
           image: imageUrl,
-          sizes: form.sizes?.filter((s: any) => s.inStock > 0) || [],
+          sizes: form.sizes?.filter((s: SizeStock) => s.inStock > 0) || [],
         }),
       });
       if (!res.ok) throw new Error("Lỗi khi thêm sản phẩm");
@@ -170,7 +173,7 @@ const AdminPage: React.FC = () => {
           ...form,
           _id: editingId,
           image: imageUrl,
-          sizes: form.sizes?.filter((s: any) => s.inStock > 0) || [],
+          sizes: form.sizes?.filter((s: SizeStock) => s.inStock > 0) || [],
         }),
       });
 
@@ -244,9 +247,11 @@ const AdminPage: React.FC = () => {
               onChange={handleInput}
             />
             {preview && (
-              <img
+              <Image
                 src={preview}
                 alt="preview"
+                width={64}
+                height={64}
                 className="w-16 h-16 object-cover rounded mt-1"
               />
             )}
@@ -261,7 +266,9 @@ const AdminPage: React.FC = () => {
             {/* Chọn size và nhập tồn kho cho từng size */}
             <div className="flex flex-col gap-2 mt-2">
               {["1", "2", "3"].map((size) => {
-                const found = form.sizes?.find((s: any) => s.size === size);
+                const found = form.sizes?.find(
+                  (s: SizeStock) => s.size === size
+                );
                 return (
                   <div key={size} className="flex items-center gap-2">
                     <label className="w-28">
@@ -279,10 +286,10 @@ const AdminPage: React.FC = () => {
                       value={found?.inStock ?? ""}
                       onChange={(e) => {
                         const val = Number(e.target.value);
-                        setForm((prev: any) => {
-                          let sizes = prev.sizes ? [...prev.sizes] : [];
+                        setForm((prev: Partial<Product>) => {
+                          const sizes = prev.sizes ? [...prev.sizes] : [];
                           const idx = sizes.findIndex(
-                            (s: any) => s.size === size
+                            (s: SizeStock) => s.size === size
                           );
                           if (val === 0 || isNaN(val)) {
                             if (idx !== -1) sizes.splice(idx, 1);
@@ -373,17 +380,21 @@ const AdminPage: React.FC = () => {
                       onChange={handleInput}
                     />
                     {preview && (
-                      <img
+                      <Image
                         src={preview}
                         alt="preview"
+                        width={64}
+                        height={64}
                         className="w-16 h-16 object-cover rounded mt-1"
                       />
                     )}
                   </>
                 ) : (
-                  <img
+                  <Image
                     src={getImageUrl(p.image)}
                     alt={p.name}
+                    width={64}
+                    height={64}
                     className="w-16 h-16 object-cover rounded cursor-pointer mx-auto"
                     onClick={() => setModalImage(getImageUrl(p.image))}
                   />
@@ -407,7 +418,7 @@ const AdminPage: React.FC = () => {
                   <div className="flex flex-col gap-1">
                     {["1", "2", "3"].map((size) => {
                       const found = form.sizes?.find(
-                        (s: any) => s.size === size
+                        (s: SizeStock) => s.size === size
                       );
                       return (
                         <div key={size} className="flex items-center gap-2">
@@ -425,10 +436,10 @@ const AdminPage: React.FC = () => {
                             value={found?.inStock ?? ""}
                             onChange={(e) => {
                               const val = Number(e.target.value);
-                              setForm((prev: any) => {
-                                let sizes = prev.sizes ? [...prev.sizes] : [];
+                              setForm((prev: Partial<Product>) => {
+                                const sizes = prev.sizes ? [...prev.sizes] : [];
                                 const idx = sizes.findIndex(
-                                  (s: any) => s.size === size
+                                  (s: SizeStock) => s.size === size
                                 );
                                 if (val === 0 || isNaN(val)) {
                                   if (idx !== -1) sizes.splice(idx, 1);
@@ -445,7 +456,7 @@ const AdminPage: React.FC = () => {
                     })}
                   </div>
                 ) : p.sizes && p.sizes.length > 0 ? (
-                  p.sizes.map((s: any) => (
+                  p.sizes.map((s: SizeStock) => (
                     <div key={s.size}>
                       {s.size === "1"
                         ? "Size 1"

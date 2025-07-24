@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Product } from "../../types";
 
-let products: Product[] = [
+const products: Product[] = [
   {
     id: "1",
     name: "iPhone 15 Pro Max",

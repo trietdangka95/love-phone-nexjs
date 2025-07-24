@@ -4,6 +4,7 @@ import Button from "../ui/Button";
 import { badges, text, combineClasses } from "../../lib/tailwindClasses";
 import { getImageUrl } from "../../ultil";
 import PreviewImage from "../PreviewImage";
+import Image from "next/image";
 
 interface SizeSelection {
   size: string;
@@ -83,7 +84,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         "flex flex-col h-full rounded-2xl shadow-md bg-white overflow-hidden border-2 border-gray-200 hover:border-teal-500 transition"
       )}
     >
-      <div className="relative">
+      <div className="relative w-full h-48">
         {product.discount && Number(product.discount) ? (
           <span className="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded z-10">
             -{product.discount}%
@@ -91,14 +92,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         ) : (
           <> </>
         )}
-        {/* Không còn dùng product.inStock, đã kiểm tra tổng tồn kho ở trên */}
-        <img
+        <Image
           src={getImageUrl(product.image)}
           alt={product.name}
-          className="w-full h-48 object-cover object-center bg-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer"
-          onError={(e) => {
-            e.currentTarget.src = "/placeholder.png";
-          }}
+          fill
+          className="object-cover object-center bg-gray-100 hover:scale-105 transition-all duration-300 cursor-pointer rounded-t-2xl"
           onClick={() => setModalImage(getImageUrl(product.image))}
         />
       </div>

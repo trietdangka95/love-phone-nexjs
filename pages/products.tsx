@@ -3,7 +3,6 @@ import { Product } from "../types/index";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../lib/slices/cartSlice";
 import ProductCard from "../components/product/ProductCard";
-import { SizeStock } from "../types";
 import Button from "../components/ui/Button";
 import { FaFilter } from "react-icons/fa";
 
@@ -51,7 +50,7 @@ const ProductsPage: React.FC = () => {
       .then((data) => setProducts(data))
       .catch((err) => setError(err.message || "Lỗi không xác định"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [API_BASE]);
 
   // Đặt lại sortOption khi chọn tab Giá
   useEffect(() => {
@@ -145,14 +144,7 @@ const ProductsPage: React.FC = () => {
     });
 
     return filtered;
-  }, [
-    products,
-    searchTerm,
-    selectedCategory,
-    selectedBrand,
-    showInStockOnly,
-    sortOption,
-  ]);
+  }, [products, searchTerm, selectedBrand, showInStockOnly, sortOption]);
 
   interface SizeSelection {
     size: string;

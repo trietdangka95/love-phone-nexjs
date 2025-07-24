@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 import { useDispatch } from "react-redux";
 import { Product } from "../types/index";
 import { addToCart } from "../lib/slices/cartSlice";
@@ -52,23 +53,23 @@ const HomePage: React.FC = () => {
     },
   ];
 
-  const startAutoPlay = () => {
+  const startAutoPlay = useCallback(() => {
     if (autoPlayRef.current) {
       clearInterval(autoPlayRef.current);
     }
     autoPlayRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
-  };
+  }, [slides.length]);
 
-  const stopAutoPlay = () => {
+  const stopAutoPlay = useCallback(() => {
     if (autoPlayRef.current) {
       clearInterval(autoPlayRef.current);
       autoPlayRef.current = null;
     }
-  };
+  }, [autoPlayRef]);
 
-  const handleUserInteraction = () => {
+  const handleUserInteraction = useCallback(() => {
     setIsAutoPlay(false);
     stopAutoPlay();
 
@@ -77,7 +78,7 @@ const HomePage: React.FC = () => {
       setIsAutoPlay(true);
       startAutoPlay();
     }, 10000);
-  };
+  }, [startAutoPlay, stopAutoPlay]);
 
   useEffect(() => {
     if (isAutoPlay) {
@@ -287,10 +288,13 @@ const HomePage: React.FC = () => {
 
                   <div className="relative">
                     <div className="relative z-10">
-                      <img
+                      <Image
                         src={slide.image}
                         alt={slide.title}
+                        width={400}
+                        height={300}
                         className="rounded-2xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500"
+                        priority={index === 0}
                       />
                     </div>
                     <div className="absolute -top-4 -right-4 bg-white rounded-2xl p-6 shadow-xl z-20">
