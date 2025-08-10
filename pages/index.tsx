@@ -1,17 +1,39 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useDispatch } from "react-redux";
-import { Product } from "../types/index";
+
 import { addToCart } from "../lib/slices/cartSlice";
-import ProductCard from "../components/product/ProductCard";
+import { getImageUrl } from "../ultil";
+
+interface ApiProduct {
+  _id: string;
+  name: string;
+  image: string;
+  price: number;
+  discount?: number;
+  description: string;
+  sizes?: Array<{ size: string; inStock: number }>;
+  brand?: string;
+}
+
+interface Category {
+  name: string;
+  icon: string;
+  count: number;
+  color: string;
+  products: ApiProduct[];
+}
 
 const HomePage: React.FC = () => {
   const dispatch = useDispatch();
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ApiProduct[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   // Slider data
   const slides = [
@@ -53,6 +75,203 @@ const HomePage: React.FC = () => {
     },
   ];
 
+  // Category definitions
+  const categoryDefinitions = [
+    {
+      name: "Váy bé gái",
+      keywords: ["váy", "dress", "công chúa", "princess", "elsa", "anna"],
+      icon: "👗",
+      color: "bg-pink-400",
+    },
+    {
+      name: "Áo bé trai",
+      keywords: ["áo", "shirt", "thun", "siêu nhân", "superman", "spider"],
+      icon: "👕",
+      color: "bg-blue-400",
+    },
+    {
+      name: "Quần bé gái",
+      keywords: ["quần", "pants", "legging", "short"],
+      icon: "👖",
+      color: "bg-purple-400",
+    },
+    {
+      name: "Đồ chơi",
+      keywords: ["đồ chơi", "toy", "xếp hình", "puzzle", "block"],
+      icon: "🧸",
+      color: "bg-yellow-400",
+    },
+    {
+      name: "Phụ kiện trẻ em",
+      keywords: ["nón", "mũ", "balo", "túi", "giày", "dép", "accessory"],
+      icon: "🎀",
+      color: "bg-green-400",
+    },
+    {
+      name: "Sản phẩm khác",
+      keywords: [],
+      icon: "📦",
+      color: "bg-gray-400",
+    },
+  ];
+
+  // Categorize products based on name
+  const categorizeProducts = (products: ApiProduct[]): Category[] => {
+    const categorizedProducts: { [key: string]: ApiProduct[] } = {};
+
+    // Initialize categories
+    categoryDefinitions.forEach((cat) => {
+      categorizedProducts[cat.name] = [];
+    });
+
+    products.forEach((product) => {
+      const productName = product.name.toLowerCase();
+      let isCategorized = false;
+
+      // Try to match with specific categories
+      for (let i = 0; i < categoryDefinitions.length - 1; i++) {
+        const category = categoryDefinitions[i];
+        if (
+          category.keywords.some((keyword) => productName.includes(keyword))
+        ) {
+          categorizedProducts[category.name].push(product);
+          isCategorized = true;
+          break;
+        }
+      }
+
+      // If no match found, put in "Sản phẩm khác"
+      if (!isCategorized) {
+        categorizedProducts["Sản phẩm khác"].push(product);
+      }
+    });
+
+    // Convert to Category array
+    return categoryDefinitions
+      .map((cat) => ({
+        name: cat.name,
+        icon: cat.icon,
+        count: categorizedProducts[cat.name]?.length || 0,
+        color: cat.color,
+        products: categorizedProducts[cat.name] || [],
+      }))
+      .filter((cat) => cat.count > 0); // Only show categories with products
+  };
+
+  // Fetch products from API
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Use NEXT_PUBLIC_API_BASE_URL if available, otherwise use local API
+      const apiUrl = API_BASE || "";
+      const endpoint = apiUrl ? `${apiUrl}/products` : "/products";
+      console.log("Fetching products from:", endpoint);
+
+      const res = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("Response status:", res.status);
+      if (!res.ok) throw new Error("Lỗi khi lấy danh sách sản phẩm");
+      const data = await res.json();
+      console.log("Products fetched:", data);
+      console.log("Number of products:", data.length);
+      setProducts(data);
+
+      // Categorize products
+      const categorized = categorizeProducts(data);
+      console.log("Categories created:", categorized);
+      setCategories(categorized);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      // Fallback to mock data if API fails
+      const mockProducts: ApiProduct[] = [
+        {
+          _id: "1",
+          name: "Váy Công Chúa Elsa",
+          price: 350000,
+          description:
+            "Váy Elsa cho bé gái, chất liệu cotton thoáng mát, thiết kế xinh xắn.",
+          image:
+            "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=300&fit=crop",
+          brand: "Nhà Bơ",
+          sizes: [
+            { size: "1", inStock: 10 },
+            { size: "2", inStock: 5 },
+          ],
+        },
+        {
+          _id: "2",
+          name: "Áo Thun Bé Trai Siêu Nhân",
+          price: 180000,
+          description:
+            "Áo thun in hình siêu nhân cho bé trai, chất liệu mềm mại.",
+          image:
+            "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=400&h=300&fit=crop",
+          brand: "Nhà Bơ",
+          sizes: [
+            { size: "1", inStock: 15 },
+            { size: "2", inStock: 8 },
+          ],
+        },
+        {
+          _id: "3",
+          name: "Bộ Đồ Chơi Xếp Hình",
+          price: 250000,
+          description: "Bộ xếp hình thông minh giúp phát triển tư duy cho bé.",
+          image:
+            "https://images.unsplash.com/photo-1503457574465-494bba506e52?w=400&h=300&fit=crop",
+          brand: "Nhà Bơ",
+          sizes: [{ size: "1", inStock: 20 }],
+        },
+        {
+          _id: "4",
+          name: "Set 3 Quần Legging Bé Gái",
+          price: 220000,
+          description: "Set 3 quần legging nhiều màu cho bé gái, co giãn tốt.",
+          image:
+            "https://images.unsplash.com/photo-1464983953574-0892a716854b?w=400&h=300&fit=crop",
+          brand: "Nhà Bơ",
+          sizes: [
+            { size: "1", inStock: 0 },
+            { size: "2", inStock: 12 },
+          ],
+        },
+        {
+          _id: "5",
+          name: "Nón Tai Gấu Dễ Thương",
+          price: 90000,
+          description: "Nón len tai gấu cho bé, giữ ấm và cực kỳ dễ thương.",
+          image:
+            "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=300&fit=crop",
+          brand: "Nhà Bơ",
+          sizes: [{ size: "1", inStock: 25 }],
+        },
+        {
+          _id: "6",
+          name: "Balo Hình Thú Cho Bé",
+          price: 150000,
+          description: "Balo nhỏ xinh hình thú cho bé đi học mẫu giáo.",
+          image:
+            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop",
+          brand: "Nhà Bơ",
+          sizes: [{ size: "1", inStock: 18 }],
+        },
+      ];
+      setProducts(mockProducts);
+      const categorized = categorizeProducts(mockProducts);
+      setCategories(categorized);
+    } finally {
+      setLoading(false);
+    }
+  }, [API_BASE]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
   const startAutoPlay = useCallback(() => {
     if (autoPlayRef.current) {
       clearInterval(autoPlayRef.current);
@@ -90,92 +309,13 @@ const HomePage: React.FC = () => {
     };
   }, [isAutoPlay, slides.length, startAutoPlay, stopAutoPlay]);
 
-  useEffect(() => {
-    // Mock data - replace with API call
-    const mockProducts: Product[] = [
-      {
-        id: "1",
-        name: "Váy Công Chúa Elsa",
-        price: 350000,
-        description:
-          "Váy Elsa cho bé gái, chất liệu cotton thoáng mát, thiết kế xinh xắn.",
-        image:
-          "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=300&fit=crop",
-        category: "Váy bé gái",
-        brand: "Nhà Bơ",
-        inStock: true,
-      },
-      {
-        id: "2",
-        name: "Áo Thun Bé Trai Siêu Nhân",
-        price: 180000,
-        description:
-          "Áo thun in hình siêu nhân cho bé trai, chất liệu mềm mại.",
-        image:
-          "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=400&h=300&fit=crop",
-        category: "Áo bé trai",
-        brand: "Nhà Bơ",
-        inStock: true,
-      },
-      {
-        id: "3",
-        name: "Bộ Đồ Chơi Xếp Hình",
-        price: 250000,
-        description: "Bộ xếp hình thông minh giúp phát triển tư duy cho bé.",
-        image:
-          "https://images.unsplash.com/photo-1503457574465-494bba506e52?w=400&h=300&fit=crop",
-        category: "Đồ chơi",
-        brand: "Nhà Bơ",
-        inStock: true,
-      },
-      {
-        id: "4",
-        name: "Set 3 Quần Legging Bé Gái",
-        price: 220000,
-        description: "Set 3 quần legging nhiều màu cho bé gái, co giãn tốt.",
-        image:
-          "https://images.unsplash.com/photo-1464983953574-0892a716854b?w=400&h=300&fit=crop",
-        category: "Quần bé gái",
-        brand: "Nhà Bơ",
-        inStock: false,
-      },
-      {
-        id: "5",
-        name: "Nón Tai Gấu Dễ Thương",
-        price: 90000,
-        description: "Nón len tai gấu cho bé, giữ ấm và cực kỳ dễ thương.",
-        image:
-          "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=300&fit=crop",
-        category: "Phụ kiện trẻ em",
-        brand: "Nhà Bơ",
-        inStock: true,
-      },
-      {
-        id: "6",
-        name: "Balo Hình Thú Cho Bé",
-        price: 150000,
-        description: "Balo nhỏ xinh hình thú cho bé đi học mẫu giáo.",
-        image:
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop",
-        category: "Phụ kiện trẻ em",
-        brand: "Nhà Bơ",
-        inStock: true,
-      },
-    ];
-
-    setTimeout(() => {
-      setFeaturedProducts(mockProducts);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: ApiProduct) => {
     dispatch(
       addToCart({
-        id: product.id,
+        _id: product._id,
         name: product.name,
         price: product.price,
-        image: product.image,
+        image: getImageUrl(product.image),
         quantity: 1,
       })
     );
@@ -194,6 +334,15 @@ const HomePage: React.FC = () => {
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
     handleUserInteraction();
+  };
+
+  // Get filtered products based on selected category
+  const getFilteredProducts = () => {
+    if (!selectedCategory) {
+      return products;
+    }
+    const category = categories.find((cat) => cat.name === selectedCategory);
+    return category ? category.products : products;
   };
 
   if (loading) {
@@ -392,36 +541,33 @@ const HomePage: React.FC = () => {
             <p className="text-gray-600">Chọn danh mục bạn quan tâm</p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              {
-                name: "Váy bé gái",
-                icon: "👗",
-                count: 50,
-                color: "bg-pink-400",
-              },
-              {
-                name: "Áo bé trai",
-                icon: "👕",
-                count: 30,
-                color: "bg-blue-400",
-              },
-              {
-                name: "Đồ chơi",
-                icon: "🧸",
-                count: 20,
-                color: "bg-yellow-400",
-              },
-              {
-                name: "Phụ kiện trẻ em",
-                icon: "🎀",
-                count: 100,
-                color: "bg-purple-400",
-              },
-            ].map((category) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div
+              onClick={() => setSelectedCategory(null)}
+              className={`bg-white rounded-lg p-6 text-center hover:shadow-lg transition-shadow cursor-pointer border-2 ${
+                selectedCategory === null
+                  ? "border-teal-500 bg-teal-50"
+                  : "border-gray-200"
+              }`}
+            >
+              <div className="w-16 h-16 bg-teal-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🏠</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Tất cả
+              </h3>
+              <p className="text-gray-600">{products.length} sản phẩm</p>
+            </div>
+
+            {categories.map((category) => (
               <div
                 key={category.name}
-                className="bg-white rounded-lg p-6 text-center hover:shadow-lg transition-shadow cursor-pointer border border-gray-200"
+                onClick={() => setSelectedCategory(category.name)}
+                className={`bg-white rounded-lg p-6 text-center hover:shadow-lg transition-shadow cursor-pointer border-2 ${
+                  selectedCategory === category.name
+                    ? "border-teal-500 bg-teal-50"
+                    : "border-gray-200"
+                }`}
               >
                 <div
                   className={`w-16 h-16 ${category.color} rounded-full flex items-center justify-center mx-auto mb-4`}
@@ -438,32 +584,105 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* Products Section */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Sản phẩm nổi bật
+                {selectedCategory ? `${selectedCategory}` : "Tất cả sản phẩm"}
               </h2>
               <p className="text-gray-600">
-                Những sản phẩm được yêu thích nhất tại Tiệm Nhỏ Nhà Bơ
+                {selectedCategory
+                  ? `Khám phá ${selectedCategory.toLowerCase()} tại Tiệm Nhỏ Nhà Bố`
+                  : "Những sản phẩm được yêu thích nhất tại Tiệm Nhỏ Nhà Bố"}
               </p>
             </div>
-            <button className="text-teal-600 hover:text-teal-700 font-medium">
-              Xem tất cả →
-            </button>
+            {selectedCategory && (
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className="text-teal-600 hover:text-teal-700 font-medium"
+              >
+                Xem tất cả →
+              </button>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.slice(0, 8).map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={handleAddToCart}
-              />
-            ))}
-          </div>
+          {getFilteredProducts().length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">😔</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Không có sản phẩm nào
+              </h3>
+              <p className="text-gray-600">
+                Hiện tại chưa có sản phẩm trong danh mục này
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {getFilteredProducts().map((product) => (
+                <div
+                  key={product._id}
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                >
+                  <div className="relative">
+                    <Image
+                      src={getImageUrl(product.image)}
+                      alt={product.name}
+                      width={300}
+                      height={200}
+                      className="w-full h-48 object-cover"
+                    />
+                    {product.discount && (
+                      <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+                        -{product.discount}%
+                      </div>
+                    )}
+                    {product.sizes &&
+                    product.sizes.some((s) => s.inStock > 0) ? (
+                      <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-sm font-medium">
+                        Còn hàng
+                      </div>
+                    ) : (
+                      <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+                        Hết hàng
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                      {product.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                      {product.description}
+                    </p>
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xl font-bold text-teal-600">
+                        {product.price.toLocaleString("vi-VN")}đ
+                      </span>
+                      {product.brand && (
+                        <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                          {product.brand}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      disabled={
+                        !product.sizes ||
+                        !product.sizes.some((s) => s.inStock > 0)
+                      }
+                      className="w-full bg-teal-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-teal-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    >
+                      {product.sizes && product.sizes.some((s) => s.inStock > 0)
+                        ? "Thêm vào giỏ"
+                        : "Hết hàng"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

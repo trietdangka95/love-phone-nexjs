@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Product, SizeStock } from "../../types/index";
+import { Product } from "../../types/index";
 import Button from "../ui/Button";
-import { badges, text, combineClasses } from "../../lib/tailwindClasses";
+import { text, combineClasses } from "../../lib/tailwindClasses";
 import { getImageUrl } from "../../ultil";
 import PreviewImage from "../PreviewImage";
 import Image from "next/image";
+import ProductSizeSelector from "./ProductSizeSelector";
 
 interface SizeSelection {
   size: string;
@@ -48,7 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   };
 
   const originalPrice = product.discount
-    ? Math.floor(product.price / (1 - product.discount / 100))
+    ? Math.floor(product.price - (product.price * product.discount) / 100)
     : undefined;
 
   // Tổng tồn kho của tất cả size
@@ -109,89 +110,33 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         </h3>
 
         <div className="flex items-center space-x-2 mb-2">
-          <span className={combineClasses(text.h5, "text-primary-600")}>
-            {formatPrice(product.price)}
-          </span>
           {product.discount && originalPrice ? (
-            <span className="text-sm text-gray-500 line-through">
+            <span className="text-xl text-primary-600">
               {formatPrice(originalPrice)}
             </span>
           ) : (
             <> </>
           )}
+
+          <span
+            className={combineClasses(
+              text.h5,
+              `text-sm text-gray-500 ${product.discount ? "line-through" : ""}`
+            )}
+          >
+            {formatPrice(product.price)}
+          </span>
         </div>
 
         <div className="flex items-center justify-between mb-3">
-          <div className="flex flex-col gap-2" ref={sizeBoxRef}>
-            {Array.isArray(product.sizes) && product.sizes.length > 0 ? (
-              product.sizes.map((s: SizeStock) => {
-                const selection = sizeSelections.find(
-                  (sel) => sel.size === s.size
-                ) || { size: s.size, quantity: 0 };
-                const [activeSize, setActiveSize] = [
-                  selectedSize,
-                  setSelectedSize,
-                ];
-                // selectedSize là state lưu size đang active
-                return (
-                  <div
-                    key={s.size}
-                    className={
-                      "relative flex flex-col items-start gap-1 text-xs font-semibold px-2 py-1 rounded bg-pink-50 text-pink-700 border border-pink-200 w-fit min-w-[120px] cursor-pointer transition " +
-                      (activeSize === s.size
-                        ? "ring-2 ring-pink-400"
-                        : "hover:bg-pink-100")
-                    }
-                    onClick={() => setActiveSize(s.size)}
-                  >
-                    <span className="flex items-center">
-                      {s.size === "1"
-                        ? "Size 1 (5-7 tháng)"
-                        : s.size === "2"
-                        ? "Size 2 (7-12 tháng)"
-                        : "Size 3 (>12 tháng)"}
-                      <span className="ml-1 text-gray-500">({s.inStock})</span>
-                      {selection.quantity > 0 && (
-                        <span className="ml-2 text-green-600 text-base">✓</span>
-                      )}
-                    </span>
-                    {activeSize === s.size && (
-                      <div className="flex items-center gap-1 mt-1">
-                        <span>Số lượng:</span>
-                        <select
-                          value={selection.quantity}
-                          disabled={s.inStock <= 0}
-                          className="border border-gray-300 rounded px-3 text-base bg-white focus:outline-pink-400"
-                          onClick={(e) => e.stopPropagation()}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value, 10);
-                            setSizeSelections((prev) => {
-                              const other = prev.filter(
-                                (sel) => sel.size !== s.size
-                              );
-                              return val > 0
-                                ? [...other, { size: s.size, quantity: val }]
-                                : other;
-                            });
-                          }}
-                        >
-                          {Array.from({ length: s.inStock + 1 }, (_, i) => (
-                            <option key={i} value={i}>
-                              {i}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <span className={combineClasses(badges.secondary, "capitalize")}>
-                Không có size
-              </span>
-            )}
-          </div>
+          <ProductSizeSelector
+            sizes={product.sizes}
+            sizeSelections={sizeSelections}
+            selectedSize={selectedSize}
+            setSelectedSize={setSelectedSize}
+            setSizeSelections={setSizeSelections}
+            sizeBoxRef={sizeBoxRef as React.RefObject<HTMLDivElement>}
+          />
         </div>
 
         <p className={combineClasses(text.small, "mb-4 line-clamp-2 flex-1")}>

@@ -203,22 +203,6 @@ const ProductsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Nút lọc nhỏ gọn */}
-        <div className="mb-4 flex items-center gap-2">
-          <button
-            className={`flex items-center px-3 py-1.5 bg-primary-100 text-primary-700 rounded text-sm font-medium shadow border border-primary-200 transition-opacity duration-150 ${
-              showFilter ? "opacity-60 cursor-default" : "hover:bg-primary-200"
-            }`}
-            onClick={() => {
-              if (!showFilter) setShowFilter(true);
-              else setShowFilter(false);
-            }}
-            disabled={showFilter}
-          >
-            <FaFilter className="mr-2 w-4 h-4" />
-            Lọc
-          </button>
-        </div>
         {/* Section filter chỉ hiện khi showFilter true */}
         {showFilter && (
           <div

@@ -21,6 +21,20 @@ export interface Product {
   discount?: number;
 }
 
+// Promo types
+export interface Promo {
+  _id: string;
+  name: string;
+  description: string;
+  image: string;
+  discount: number;
+  maxProducts: number;
+  products: string[]; // Array of product IDs
+  isActive: boolean;
+  startDate?: string;
+  endDate?: string;
+}
+
 // Cart types
 export interface CartItem {
   _id: string;

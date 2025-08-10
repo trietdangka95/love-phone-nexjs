@@ -4,11 +4,29 @@ import { useToast } from "../components/ui/Toast";
 import { getImageUrl } from "../ultil";
 import PreviewImage from "../components/PreviewImage";
 import Image from "next/image";
+import {
+  FiHome,
+  FiPackage,
+  FiUsers,
+  FiShoppingCart,
+  FiSettings,
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiEye,
+  FiX,
+  FiSave,
+  FiBarChart,
+  FiDollarSign,
+  FiTrendingUp,
+  FiGrid,
+} from "react-icons/fi";
 
 interface SizeStock {
-  size: string; // '1', '2', '3'
+  size: string;
   inStock: number;
 }
+
 interface Product {
   _id: string;
   name: string;
@@ -28,17 +46,17 @@ const AdminPage: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  // State cho file ảnh và preview
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const { showToast } = useToast();
-  // State cho modal preview ảnh
   const [modalImage, setModalImage] = useState<string | null>(null);
 
-  // Check admin login (mock)
+  // Check admin login
   useEffect(() => {
     if (typeof window !== "undefined") {
       setIsClient(true);
@@ -58,8 +76,6 @@ const AdminPage: React.FC = () => {
       const res = await fetch(`${API_BASE}/products`);
       if (!res.ok) throw new Error("Lỗi khi lấy danh sách sản phẩm");
       const data = await res.json();
-
-      // Không cần gán id, dùng _id từ backend
       setProducts(data);
     } catch (err) {
       const error = err as Error;
@@ -177,14 +193,6 @@ const AdminPage: React.FC = () => {
         }),
       });
 
-      console.log(
-        JSON.stringify({
-          ...form,
-          _id: editingId,
-          image: imageUrl,
-        })
-      );
-
       if (!res.ok) throw new Error("Lỗi khi sửa sản phẩm");
       setEditingId(null);
       setForm({});
@@ -201,6 +209,7 @@ const AdminPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) return;
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/products/${id}`, {
@@ -208,6 +217,7 @@ const AdminPage: React.FC = () => {
       });
       if (!res.ok) throw new Error("Lỗi khi xoá sản phẩm");
       await fetchProducts();
+      showToast("Xóa sản phẩm thành công!", "success");
     } catch (err) {
       const error = err as Error;
       showToast(error.message || "Lỗi không xác định", "error");
@@ -216,326 +226,632 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  // Hàm lấy link ảnh đầy đủ
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  return (
-    <div className="mx-8 py-8">
-      <h1 className="text-2xl font-bold mb-6 text-center">Quản lý sản phẩm</h1>
-      <div className="mb-4 flex justify-end">
-        <button
-          className="px-4 py-2 bg-primary-500 text-white rounded"
-          onClick={() => setShowAdd((v) => !v)}
-        >
-          {showAdd ? "Đóng" : "Thêm sản phẩm"}
-        </button>
-      </div>
-      {showAdd && (
-        <div className="mb-6 p-4 border rounded bg-primary-50 max-w-2xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              name="name"
-              placeholder="Tên sản phẩm"
-              className="border p-2 rounded w-full"
-              value={form.name || ""}
-              onChange={handleInput}
-            />
-            <input
-              name="image"
-              type="file"
-              accept="image/*"
-              className="border p-2 rounded w-full"
-              onChange={handleInput}
-            />
-            {preview && (
-              <Image
-                src={preview}
-                alt="preview"
-                width={64}
-                height={64}
-                className="w-16 h-16 object-cover rounded mt-1"
-              />
-            )}
-            <input
-              name="price"
-              type="number"
-              placeholder="Giá"
-              className="border p-2 rounded w-full"
-              value={form.price || ""}
-              onChange={handleInput}
-            />
-            {/* Chọn size và nhập tồn kho cho từng size */}
-            <div className="flex flex-col gap-2 mt-2">
-              {["1", "2", "3"].map((size) => {
-                const found = form.sizes?.find(
-                  (s: SizeStock) => s.size === size
-                );
-                return (
-                  <div key={size} className="flex items-center gap-2">
-                    <label className="w-28">
-                      {size === "1"
-                        ? "Size 1 (5-7 tháng)"
-                        : size === "2"
-                        ? "Size 2 (7-12 tháng)"
-                        : "Size 3 (>12 tháng)"}
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      className="border p-2 rounded w-32"
-                      placeholder="Tồn kho"
-                      value={found?.inStock ?? ""}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        setForm((prev: Partial<Product>) => {
-                          const sizes = prev.sizes ? [...prev.sizes] : [];
-                          const idx = sizes.findIndex(
-                            (s: SizeStock) => s.size === size
-                          );
-                          if (val === 0 || isNaN(val)) {
-                            if (idx !== -1) sizes.splice(idx, 1);
-                          } else {
-                            if (idx !== -1) sizes[idx].inStock = val;
-                            else sizes.push({ size, inStock: val });
-                          }
-                          return { ...prev, sizes };
-                        });
-                      }}
-                    />
-                  </div>
-                );
-              })}
+  const totalRevenue = products.reduce(
+    (sum, product) => sum + product.price,
+    0
+  );
+  const totalProducts = products.length;
+  const lowStockProducts = products.filter((product) =>
+    product.sizes?.some((size) => size.inStock < 5)
+  ).length;
+
+  const renderDashboard = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+              <FiDollarSign size={24} />
             </div>
-            <input
-              name="discount"
-              type="number"
-              placeholder="Giảm giá (%)"
-              className="border p-2 rounded w-full"
-              value={form.discount || ""}
-              onChange={handleInput}
-            />
-            <textarea
-              name="description"
-              placeholder="Mô tả"
-              className="border p-2 rounded w-full col-span-1 md:col-span-2"
-              value={form.description || ""}
-              onChange={handleInput}
-            />
-          </div>
-          <div className="mt-4 flex gap-2 flex-wrap justify-end">
-            <button
-              className="px-4 py-2 bg-primary-600 text-white rounded"
-              onClick={handleAdd}
-              disabled={loading}
-            >
-              Thêm
-            </button>
-            <button
-              className="px-4 py-2 bg-gray-300 rounded"
-              onClick={handleCancel}
-              disabled={loading}
-            >
-              Huỷ
-            </button>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">
+                Tổng doanh thu
+              </p>
+              <p className="text-2xl font-bold text-gray-900">
+                {totalRevenue.toLocaleString("vi-VN")}đ
+              </p>
+            </div>
           </div>
         </div>
-      )}
-      {loading && <div className="mb-4 text-primary-500">Đang xử lý...</div>}
-      <table className="w-full border text-sm">
-        <thead>
-          <tr className="bg-primary-100">
-            <th className="p-2 border">No</th>
-            <th className="p-2 border">Tên</th>
-            <th className="p-2 border">Hình</th>
-            <th className="p-2 border">Giá</th>
-            <th className="p-2 border">Size & tồn kho</th>
-            <th className="p-2 border">Giảm giá</th>
-            <th className="p-2 border">Mô tả</th>
-            <th className="p-2 border">Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((p, idx) => (
-            <tr key={p._id}>
-              <td className="border p-2 w-16 text-center">{idx + 1}</td>
-              <td className="border p-2 w-40 text-center">
-                {editingId === p._id ? (
-                  <input
-                    name="name"
-                    className="border p-1 rounded w-full"
-                    value={form.name || ""}
-                    onChange={handleInput}
-                  />
-                ) : (
-                  p.name
-                )}
-              </td>
-              <td className="border p-2 w-80 text-center">
-                {editingId === p._id ? (
-                  <>
-                    <input
-                      name="image"
-                      type="file"
-                      accept="image/*"
-                      className="border p-1 rounded w-full"
-                      onChange={handleInput}
-                    />
-                    {preview && (
-                      <Image
-                        src={preview}
-                        alt="preview"
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 object-cover rounded mt-1"
-                      />
-                    )}
-                  </>
-                ) : (
+
+        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-green-100 text-green-600">
+              <FiPackage size={24} />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Tổng sản phẩm</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {totalProducts}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
+              <FiTrendingUp size={24} />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">
+                Sản phẩm bán chạy
+              </p>
+              <p className="text-2xl font-bold text-gray-900">12</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-red-100 text-red-600">
+              <FiBarChart size={24} />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Sắp hết hàng</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {lowStockProducts}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">
+            Hoạt động gần đây
+          </h3>
+        </div>
+        <div className="p-6">
+          <div className="space-y-4">
+            {products.slice(0, 5).map((product, idx) => (
+              <div key={product._id} className="flex items-center space-x-4">
+                <div className="flex-shrink-0">
                   <Image
-                    src={getImageUrl(p.image)}
-                    alt={p.name}
-                    width={64}
-                    height={64}
-                    className="w-16 h-16 object-cover rounded cursor-pointer mx-auto"
-                    onClick={() => setModalImage(getImageUrl(p.image))}
+                    src={getImageUrl(product.image)}
+                    alt={product.name}
+                    width={40}
+                    height={40}
+                    className="rounded-lg object-cover"
                   />
-                )}
-              </td>
-              <td className="border p-2 w-32 text-center">
-                {editingId === p._id ? (
-                  <input
-                    name="price"
-                    type="number"
-                    className="border p-1 rounded w-full"
-                    value={form.price || ""}
-                    onChange={handleInput}
-                  />
-                ) : (
-                  p.price.toLocaleString("vi-VN")
-                )}
-              </td>
-              <td className="border p-2 w-48 text-center">
-                {editingId === p._id ? (
-                  <div className="flex flex-col gap-1">
-                    {["1", "2", "3"].map((size) => {
-                      const found = form.sizes?.find(
-                        (s: SizeStock) => s.size === size
-                      );
-                      return (
-                        <div key={size} className="flex items-center gap-2">
-                          <label className="w-20">
-                            {size === "1"
-                              ? "Size 1"
-                              : size === "2"
-                              ? "Size 2"
-                              : "Size 3"}
-                          </label>
-                          <input
-                            type="number"
-                            min={0}
-                            className="border p-1 rounded w-16"
-                            value={found?.inStock ?? ""}
-                            onChange={(e) => {
-                              const val = Number(e.target.value);
-                              setForm((prev: Partial<Product>) => {
-                                const sizes = prev.sizes ? [...prev.sizes] : [];
-                                const idx = sizes.findIndex(
-                                  (s: SizeStock) => s.size === size
-                                );
-                                if (val === 0 || isNaN(val)) {
-                                  if (idx !== -1) sizes.splice(idx, 1);
-                                } else {
-                                  if (idx !== -1) sizes[idx].inStock = val;
-                                  else sizes.push({ size, inStock: val });
-                                }
-                                return { ...prev, sizes };
-                              });
-                            }}
-                          />
-                        </div>
-                      );
-                    })}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {product.name}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {product.price.toLocaleString("vi-VN")}đ
+                  </p>
+                </div>
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Còn hàng
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderProducts = () => (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Quản lý sản phẩm</h2>
+          <p className="text-gray-600">
+            Quản lý tất cả sản phẩm trong cửa hàng
+          </p>
+        </div>
+        <button
+          onClick={() => setShowAdd(true)}
+          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <FiPlus className="mr-2" size={16} />
+          Thêm sản phẩm
+        </button>
+      </div>
+
+      {showAdd && (
+        <div className="bg-white rounded-lg shadow-lg border">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">
+              Thêm sản phẩm mới
+            </h3>
+          </div>
+          <form onSubmit={handleAdd} className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tên sản phẩm
+                </label>
+                <input
+                  name="name"
+                  placeholder="Nhập tên sản phẩm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={form.name || ""}
+                  onChange={handleInput}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Hình ảnh
+                </label>
+                <input
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={handleInput}
+                />
+                {preview && (
+                  <div className="mt-2">
+                    <Image
+                      src={preview}
+                      alt="preview"
+                      width={100}
+                      height={100}
+                      className="rounded-lg object-cover"
+                    />
                   </div>
-                ) : p.sizes && p.sizes.length > 0 ? (
-                  p.sizes.map((s: SizeStock) => (
-                    <div key={s.size}>
-                      {s.size === "1"
-                        ? "Size 1"
-                        : s.size === "2"
-                        ? "Size 2"
-                        : "Size 3"}
-                      : {s.inStock}
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Giá (VNĐ)
+                </label>
+                <input
+                  name="price"
+                  type="number"
+                  placeholder="Nhập giá sản phẩm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={form.price || ""}
+                  onChange={handleInput}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Giảm giá (%)
+                </label>
+                <input
+                  name="discount"
+                  type="number"
+                  placeholder="Nhập % giảm giá"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={form.discount || ""}
+                  onChange={handleInput}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mô tả
+              </label>
+              <textarea
+                name="description"
+                placeholder="Nhập mô tả sản phẩm"
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={form.description || ""}
+                onChange={handleInput}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-4">
+                Quản lý kho hàng
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {["1", "2", "3"].map((size) => {
+                  const found = form.sizes?.find(
+                    (s: SizeStock) => s.size === size
+                  );
+                  return (
+                    <div key={size} className="bg-gray-50 p-4 rounded-lg">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {size === "1"
+                          ? "Size 1 (5-7 tháng)"
+                          : size === "2"
+                          ? "Size 2 (7-12 tháng)"
+                          : "Size 3 (>12 tháng)"}
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Số lượng"
+                        value={found?.inStock ?? ""}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setForm((prev: Partial<Product>) => {
+                            const sizes = prev.sizes ? [...prev.sizes] : [];
+                            const idx = sizes.findIndex(
+                              (s: SizeStock) => s.size === size
+                            );
+                            if (val === 0 || isNaN(val)) {
+                              if (idx !== -1) sizes.splice(idx, 1);
+                            } else {
+                              if (idx !== -1) sizes[idx].inStock = val;
+                              else sizes.push({ size, inStock: val });
+                            }
+                            return { ...prev, sizes };
+                          });
+                        }}
+                      />
                     </div>
-                  ))
-                ) : (
-                  <span>—</span>
-                )}
-              </td>
-              <td className="border p-2 w-32 text-center">
-                {editingId === p._id ? (
-                  <input
-                    name="discount"
-                    type="number"
-                    className="border p-1 rounded w-full"
-                    value={form.discount || ""}
-                    onChange={handleInput}
-                  />
-                ) : (
-                  (p.discount || 0) + "%"
-                )}
-              </td>
-              <td className="border p-2 text-center">
-                {editingId === p._id ? (
-                  <textarea
-                    name="description"
-                    className="border p-1 rounded w-full"
-                    value={form.description || ""}
-                    onChange={handleInput}
-                  />
-                ) : (
-                  p.description
-                )}
-              </td>
-              <td className="border p-2 w-32 text-center">
-                {editingId === p._id ? (
-                  <>
-                    <button
-                      className="px-2 py-1 bg-primary-500 text-white rounded mr-1"
-                      onClick={handleSave}
-                      disabled={loading}
-                    >
-                      Lưu
-                    </button>
-                    <button
-                      className="px-2 py-1 bg-gray-300 rounded"
-                      onClick={() => setEditingId(null)}
-                      disabled={loading}
-                    >
-                      Huỷ
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      className="px-2 py-1 bg-primary-500 text-white rounded mr-1"
-                      onClick={() => handleEdit(p)}
-                      disabled={loading}
-                    >
-                      Sửa
-                    </button>
-                    <button
-                      className="px-2 py-1 bg-red-500 text-white rounded"
-                      onClick={() => handleDelete(p._id)}
-                      disabled={loading}
-                    >
-                      Xoá
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={loading}
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                disabled={loading}
+              >
+                {loading ? "Đang xử lý..." : "Thêm sản phẩm"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+            <h3 className="text-lg font-medium text-gray-900">
+              Danh sách sản phẩm ({filteredProducts.length})
+            </h3>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Tìm kiếm sản phẩm..."
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <FiGrid
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={16}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Sản phẩm
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Giá
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Kho hàng
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Trạng thái
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Hành động
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredProducts.map((product) => (
+                <tr key={product._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-12 w-12">
+                        <Image
+                          src={getImageUrl(product.image)}
+                          alt={product.name}
+                          width={48}
+                          height={48}
+                          className="h-12 w-12 rounded-lg object-cover cursor-pointer"
+                          onClick={() =>
+                            setModalImage(getImageUrl(product.image))
+                          }
+                        />
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {editingId === product._id ? (
+                            <input
+                              name="name"
+                              className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                              value={form.name || ""}
+                              onChange={handleInput}
+                            />
+                          ) : (
+                            product.name
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {editingId === product._id ? (
+                            <textarea
+                              name="description"
+                              className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                              value={form.description || ""}
+                              onChange={handleInput}
+                              rows={2}
+                            />
+                          ) : (
+                            product.description
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {editingId === product._id ? (
+                        <input
+                          name="price"
+                          type="number"
+                          className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                          value={form.price || ""}
+                          onChange={handleInput}
+                        />
+                      ) : (
+                        <span className="font-medium">
+                          {product.price.toLocaleString("vi-VN")}đ
+                        </span>
+                      )}
+                    </div>
+                    {product.discount && (
+                      <div className="text-sm text-green-600">
+                        Giảm {product.discount}%
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {editingId === product._id ? (
+                      <div className="space-y-2">
+                        {["1", "2", "3"].map((size) => {
+                          const found = form.sizes?.find(
+                            (s: SizeStock) => s.size === size
+                          );
+                          return (
+                            <div
+                              key={size}
+                              className="flex items-center space-x-2"
+                            >
+                              <span className="text-xs text-gray-500 w-8">
+                                Size {size}
+                              </span>
+                              <input
+                                type="number"
+                                min={0}
+                                className="w-16 px-2 py-1 border border-gray-300 rounded text-xs"
+                                value={found?.inStock ?? ""}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  setForm((prev: Partial<Product>) => {
+                                    const sizes = prev.sizes
+                                      ? [...prev.sizes]
+                                      : [];
+                                    const idx = sizes.findIndex(
+                                      (s: SizeStock) => s.size === size
+                                    );
+                                    if (val === 0 || isNaN(val)) {
+                                      if (idx !== -1) sizes.splice(idx, 1);
+                                    } else {
+                                      if (idx !== -1) sizes[idx].inStock = val;
+                                      else sizes.push({ size, inStock: val });
+                                    }
+                                    return { ...prev, sizes };
+                                  });
+                                }}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        {product.sizes && product.sizes.length > 0 ? (
+                          product.sizes.map((size) => (
+                            <div
+                              key={size.size}
+                              className="text-sm text-gray-900"
+                            >
+                              <span className="font-medium">
+                                Size {size.size}:
+                              </span>{" "}
+                              <span
+                                className={
+                                  size.inStock < 5
+                                    ? "text-red-600"
+                                    : "text-gray-600"
+                                }
+                              >
+                                {size.inStock}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-sm text-gray-500">—</span>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {product.sizes &&
+                    product.sizes.some((s) => s.inStock > 0) ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Còn hàng
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        Hết hàng
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    {editingId === product._id ? (
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={handleSave}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700"
+                          disabled={loading}
+                        >
+                          <FiSave size={12} className="mr-1" />
+                          Lưu
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="inline-flex items-center px-3 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50"
+                          disabled={loading}
+                        >
+                          <FiX size={12} className="mr-1" />
+                          Hủy
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700"
+                          disabled={loading}
+                        >
+                          <FiEdit2 size={12} className="mr-1" />
+                          Sửa
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product._id)}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700"
+                          disabled={loading}
+                        >
+                          <FiTrash2 size={12} className="mr-1" />
+                          Xóa
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return renderDashboard();
+      case "products":
+        return renderProducts();
+      default:
+        return renderDashboard();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white shadow-sm border-r border-gray-200">
+          <nav className="mt-8">
+            <div className="px-4 space-y-2">
+              <button
+                onClick={() => setActiveTab("dashboard")}
+                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                  activeTab === "dashboard"
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <FiHome className="mr-3" size={18} />
+                Dashboard
+              </button>
+              <button
+                onClick={() => setActiveTab("products")}
+                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                  activeTab === "products"
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <FiPackage className="mr-3" size={18} />
+                Sản phẩm
+              </button>
+              <button
+                onClick={() => setActiveTab("orders")}
+                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                  activeTab === "orders"
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <FiShoppingCart className="mr-3" size={18} />
+                Đơn hàng
+              </button>
+              <button
+                onClick={() => setActiveTab("customers")}
+                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                  activeTab === "customers"
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <FiUsers className="mr-3" size={18} />
+                Khách hàng
+              </button>
+              <button
+                onClick={() => setActiveTab("settings")}
+                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                  activeTab === "settings"
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <FiSettings className="mr-3" size={18} />
+                Cài đặt
+              </button>
+            </div>
+          </nav>
+        </aside>
+
+        {/* Main content */}
+        <main className="flex-1 p-8">
+          {loading && (
+            <div className="mb-4 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-gray-600">Đang xử lý...</span>
+            </div>
+          )}
+          {renderContent()}
+        </main>
+      </div>
+
       {/* Modal preview ảnh */}
       {modalImage && (
         <PreviewImage src={modalImage} onClose={() => setModalImage(null)} />
