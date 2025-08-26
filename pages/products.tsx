@@ -4,9 +4,6 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "../lib/slices/cartSlice";
 import ProductCard from "../components/product/ProductCard";
 import Button from "../components/ui/Button";
-import { FaFilter } from "react-icons/fa";
-
-// Không dùng mockProducts nữa
 
 const sortTabs = [
   { key: "featured", label: "Nổi bật" },

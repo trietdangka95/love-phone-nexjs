@@ -116,6 +116,7 @@ const HomePage: React.FC = () => {
   ];
 
   // Categorize products based on name
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const categorizeProducts = (products: ApiProduct[]): Category[] => {
     const categorizedProducts: { [key: string]: ApiProduct[] } = {};
 
@@ -266,7 +267,7 @@ const HomePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE]);
+  }, [API_BASE, categorizeProducts]);
 
   useEffect(() => {
     fetchProducts();

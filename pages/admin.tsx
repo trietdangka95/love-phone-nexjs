@@ -308,7 +308,7 @@ const AdminPage: React.FC = () => {
         </div>
         <div className="p-6">
           <div className="space-y-4">
-            {products.slice(0, 5).map((product, idx) => (
+            {products.slice(0, 5).map((product) => (
               <div key={product._id} className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
                   <Image
