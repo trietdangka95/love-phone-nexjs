@@ -13,7 +13,6 @@ import {
   FiPlus,
   FiEdit2,
   FiTrash2,
-  FiEye,
   FiX,
   FiSave,
   FiBarChart,
